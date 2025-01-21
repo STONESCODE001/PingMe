@@ -1,14 +1,5 @@
 import * as React from "react";
-import { StatusBar } from "expo-status-bar";
-import {
-  StyleSheet,
-  Text,
-  View,
-  FlatList,
-  SafeAreaView,
-  ScrollView,
-  Image,
-} from "react-native";
+import { StyleSheet, Text, View, FlatList, Image } from "react-native";
 import {
   Provider as PaperProvider,
   Button,
@@ -16,9 +7,10 @@ import {
   FAB,
   Portal,
 } from "react-native-paper";
-import * as MediaLibrary from "expo-media-library";
 import * as ImagePicker from "expo-image-picker";
 import { useState, useEffect } from "react";
+
+
 
 const DATA = [
   {
@@ -47,7 +39,7 @@ const DATA = [
     time: "9:00 AM - 11:00 AM",
   },
   {
-    id: "3ac68afc-c605-48d3-a4f8-prds1aa97f63",
+    id: "3ac68afc-c605-48d3-a4f8-pr9s1aa97f63",
     class: "GST 213",
     time: "9:00 AM - 11:00 AM",
   },
@@ -120,13 +112,11 @@ const Item = ({ className, time }) => (
 
 export default function App() {
   const [state, setState] = React.useState({ open: false });
-
   const onStateChange = ({ open }) => setState({ open });
-
   const { open } = state;
 
   const [image, setImage] = useState(null);
-
+   
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -139,23 +129,54 @@ export default function App() {
     console.log(result);
 
     if (!result.canceled) {
+      const imageSource = result.assets[0].uri;
+      console.log('logging the url', imageSource);
+      setImage(imageSource);
+    }
+  };
+
+ 
+  useEffect(() => {
+    (async () => {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== "granted") {
+        alert("Sorry, we need camera permissions to make this work!");
+      }
+    })();
+  }, []);
+
+  const takePhoto = async () => {
+    let result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log(result);
+
+    if (!result.canceled) {
       setImage(result.assets[0].uri);
     }
   };
+
+ 
 
   return (
     <PaperProvider>
       <View style={styles.container}>
         <View style={{ padding: 0 }}>
           <View style={{ padding: 0 }}>
-            <Button mode="contained" onPress={pickImage} style={styles.button}>
-              Pick an image
-            </Button>
+            <Button
+              title="Pick an image from camera roll"
+              onPress={pickImage}
+            />
+            <Button title="Take a photo" onPress={takePhoto} />
             {image && <Image source={{ uri: image }} style={styles.image} />}
+          
           </View>
           <Card
             style={{
-              backgroundColor: "white",
+              backgroundColor: 'white',
               width: 320,
             }}
           >
@@ -165,8 +186,8 @@ export default function App() {
               //subtitle="Card Subtitle"
               variant="titleMedium"
               titleStyle={{
-                fontWeight: "bold",
-                color: "#0059C9",
+                fontWeight: 'bold',
+                color: '#0059C9',
                 padding: 0,
                 margin: 0,
               }}
@@ -176,7 +197,7 @@ export default function App() {
                 style={{
                   fontSize: 30,
                   fontWeight: 800,
-                  color: "black",
+                  color: 'black',
                   padding: 0,
                   margin: 0,
                 }}
@@ -187,13 +208,13 @@ export default function App() {
                 style={{
                   fontSize: 17,
                   fontWeight: 900,
-                  color: "black",
-                  backgroundColor: "#DBE2F9",
+                  color: 'black',
+                  backgroundColor: '#DBE2F9',
                   borderRadius: 10,
                   paddingVertical: 7,
                   paddingHorizontal: 8,
                   marginTop: 2,
-                  alignSelf: "flex-start",
+                  alignSelf: 'flex-start',
                   marginTop: 2,
                 }}
               >
@@ -209,10 +230,10 @@ export default function App() {
           style={{
             fontSize: 21,
             fontWeight: 900,
-            color: "black",
+            color: 'black',
             padding: 15,
             paddingLeft: 30,
-            alignSelf: "flex-start",
+            alignSelf: 'flex-start',
           }}
         >
           Today
@@ -227,7 +248,7 @@ export default function App() {
         >
           <Card
             style={{
-              backgroundColor: "white",
+              backgroundColor: 'white',
               width: 320,
               height: 400,
             }}
@@ -250,29 +271,31 @@ export default function App() {
         <FAB.Group
           open={open}
           visible
-          icon={open ? "calendar-today" : "plus"}
-          label={open ? "" : "Add Timetable"}
+          icon={open ? 'calendar-today' : 'plus'}
+          label={open ? '' : 'Add Timetable'}
           color="white"
           fabStyle={{
-            backgroundColor: "#0059C9",
+            backgroundColor: '#0059C9',
           }}
           actions={[
             {
-              icon: "camera",
-              color: "white",
-              label: "Scan Timetable",
+              icon: 'camera',
+              color: 'white',
+              label: 'Scan Timetable',
               style: {
-                backgroundColor: "#0059C9",
+                backgroundColor: '#0059C9',
               },
-              onPress: () => console.log("Pressed scan"),
+              onPress: () => {
+                takePhoto();
+              },
             },
             {
-              icon: "cloud",
-              color: "white",
-              label: "Upload Timetable",
+              icon: 'cloud',
+              color: 'white',
+              label: 'Upload Timetable',
 
               style: {
-                backgroundColor: "#0059C9",
+                backgroundColor: '#0059C9',
               },
               //onPress: () => console.log("Pressed upload"),
               onPress: () => {
@@ -308,6 +331,15 @@ const styles = StyleSheet.create({
   image: {
     width: 200,
     height: 200,
+    marginVertical: 16,
+  },
+  card: {
+    width: "100%",
+    marginTop: 16,
+  },
+  ocrText: {
+    fontSize: 16,
+    color: "black",
   },
   button: {
     margin: 10,
